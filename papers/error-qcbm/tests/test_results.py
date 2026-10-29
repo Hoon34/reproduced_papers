@@ -118,6 +118,35 @@ def test_plot_artists_retain_individual_curves_and_finite_shot_metric(bundle):
             "Log returns and histograms calculated by the reproduction authors"
             in footer
         )
+        combined = figures["figure2_combined"]
+        assert len(combined.axes) == 6
+        pairs = (gauss, figures["financial_fig2cd"], figures["belenos_fig2ef_original"])
+        for row, pair in enumerate(pairs):
+            for column, original in enumerate(pair.axes):
+                merged = combined.axes[2 * row + column]
+                assert len(merged.lines) == len(original.lines)
+                assert len(merged.collections) == len(original.collections)
+                assert len(merged.patches) == len(original.patches)
+                for actual, expected in zip(merged.lines, original.lines, strict=True):
+                    np.testing.assert_array_equal(
+                        actual.get_xdata(), expected.get_xdata()
+                    )
+                    np.testing.assert_array_equal(
+                        actual.get_ydata(), expected.get_ydata()
+                    )
+                for actual, expected in zip(
+                    merged.patches, original.patches, strict=True
+                ):
+                    np.testing.assert_array_equal(
+                        actual.get_path().vertices, expected.get_path().vertices
+                    )
+        combined_credit = "\n".join(
+            text.get_text()
+            for subfigure in combined.subfigs
+            for text in subfigure.texts
+        )
+        assert "Source: European Central Bank (ECB)" in combined_credit
+        assert "Belenos-characterized MerLin simulation" in combined_credit
     finally:
         for figure in figures.values():
             plt.close(figure)
@@ -168,6 +197,6 @@ def test_shared_runtime_redraw_uses_no_random_sampling(tmp_path, monkeypatch):
     train_and_evaluate(
         {"task": "plot_results", "results": {"directory": str(RESULTS)}}, tmp_path
     )
-    assert len(list(tmp_path.glob("*.png"))) == 3
+    assert len(list(tmp_path.glob("*.png"))) == 4
     metrics = json.loads((tmp_path / "metrics.json").read_text())
     assert metrics["new_photonic_shots"] == metrics["qpu_jobs_submitted"] == 0

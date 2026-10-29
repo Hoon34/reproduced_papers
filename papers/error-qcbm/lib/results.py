@@ -415,13 +415,16 @@ def summarize_results(bundle: dict) -> dict:
     return summary
 
 
-def make_figures(bundle: dict) -> dict:
+def _make_panel_figures(bundle: dict, parent=None) -> dict:
     """Build Figure 2 counterparts from curated values with no new sampling.
 
     Parameters
     ----------
     bundle : dict
         Validated CSV/manifest bundle.
+    parent : matplotlib.figure.Figure or None, optional
+        Draw the three panel pairs into subfigures of this parent when supplied.
+        Default is None, preserving the independent pair layouts.
 
     Returns
     -------
@@ -440,7 +443,12 @@ def make_figures(bundle: dict) -> dict:
         "postselection": "Lossy",
         "recycling": "Lossy with recycling mitigation",
     }
-    gaussian, axes = plt.subplots(1, 2, figsize=(11, 4.5), constrained_layout=True)
+    row_figures = parent.subfigures(3, 1, hspace=0.02) if parent is not None else None
+    if row_figures is None:
+        gaussian, axes = plt.subplots(1, 2, figsize=(11, 4.5), constrained_layout=True)
+    else:
+        gaussian = row_figures[0]
+        axes = gaussian.subplots(1, 2)
     for name in CONDITIONS:
         rows = select_runs(bundle, "gaussian", name)
         a = finite_curves(bundle, rows)
@@ -474,7 +482,11 @@ def make_figures(bundle: dict) -> dict:
             va="top",
             fontsize=12,
         )
-    financial, axes = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
+    if row_figures is None:
+        financial, axes = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
+    else:
+        financial = row_figures[1]
+        axes = financial.subplots(1, 2)
     financial.supxlabel(
         "Source: European Central Bank (ECB), EXR.D.USD.EUR.SP00.A (2004–2023).\n"
         "Log returns and histograms calculated by the reproduction authors.",
@@ -517,7 +529,11 @@ def make_figures(bundle: dict) -> dict:
         )
         axis.tick_params(direction="in", top=True, right=True)
         axis.legend(fontsize=8)
-    belenos, axes = plt.subplots(1, 2, figsize=(12, 5.2), layout="constrained")
+    if row_figures is None:
+        belenos, axes = plt.subplots(1, 2, figsize=(12, 5.2), layout="constrained")
+    else:
+        belenos = row_figures[2]
+        axes = belenos.subplots(1, 2)
     color = dict(
         zip(
             BELENOS,
@@ -591,6 +607,49 @@ def make_figures(bundle: dict) -> dict:
         "financial_fig2cd": financial,
         "belenos_fig2ef_original": belenos,
     }
+
+
+def make_combined_figure(bundle: dict):
+    """Arrange the unchanged six panels into one paper-style Figure 2.
+
+    Parameters
+    ----------
+    bundle : dict
+        Validated CSV/manifest bundle used by the independent panel pairs.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        Three rows and two columns, with the financial source credit retained.
+        The caller owns closing the figure.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    figure = plt.figure(figsize=(12, 15.6), layout="constrained")
+    _make_panel_figures(bundle, parent=figure)
+    return figure
+
+
+def make_figures(bundle: dict) -> dict:
+    """Build the panel-pair exports and their combined six-panel Figure 2.
+
+    Parameters
+    ----------
+    bundle : dict
+        Validated CSV/manifest bundle; no new sampling or training is performed.
+
+    Returns
+    -------
+    dict
+        Figures keyed by the three existing stems and ``figure2_combined``.
+        The caller owns closing every figure.
+    """
+    figures = _make_panel_figures(bundle)
+    figures["figure2_combined"] = make_combined_figure(bundle)
+    return figures
 
 
 def run_result_plotting(cfg: dict, run_dir: Path) -> None:

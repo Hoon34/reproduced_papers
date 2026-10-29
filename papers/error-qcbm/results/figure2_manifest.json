@@ -177,6 +177,31 @@
     "belenos_fig2ef_original": {
       "png": "e0386677dab464da43b858a3abef8d6c6ae0f54aa3f8fbc0372b58768dc38148",
       "svg": "80c980b065d21910cfe83b53920c6bbfb488212bba8c4ddbdc566ae402ba9a7c"
+    },
+    "figure2_combined": {
+      "png": "545901b514e98e4f7fc7c2bf64eef5fc16810557bb05c12336933cbe8df4e69d",
+      "svg": "c06a74bd52c41eb8788c715bd417e2e7d0ebb8b6b12bf371634a2f02b1cc80c2"
     }
+  },
+  "combined_layout": {
+    "stem": "figure2_combined",
+    "rows": 3,
+    "columns": 2,
+    "panel_order": [
+      [
+        "a",
+        "b"
+      ],
+      [
+        "c",
+        "d"
+      ],
+      [
+        "e",
+        "f"
+      ]
+    ],
+    "scope": "Same plot artists and historical values as the three panel-pair exports; no new sampling or training",
+    "financial_credit": "ECB source and reproduction-author processing notice retained in row c,d"
   }
 }

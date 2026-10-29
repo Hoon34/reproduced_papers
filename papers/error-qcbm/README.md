@@ -9,8 +9,7 @@ Physical Review A **111**, L030401. [arXiv](https://arxiv.org/abs/2405.02277).
 Original code: [Quandela/photonic-qcbm](https://github.com/Quandela/photonic-qcbm/tree/d593d209128e403644b9aee595c474ce551391ae).
 
 Gaussian targets and SPSA follow that reference. MerLin and Perceval
-are Quandela dependencies; retained SDK notices are in the
-[sampling notes](lib/SAMPLING.md#dependency-notices).
+are Quandela dependencies; retained SDK notices are in the [sampling notes](lib/SAMPLING.md#dependency-notices).
 
 ## Overview
 
@@ -28,8 +27,6 @@ Changes from the paper:
 - ECB 2004–2023 EUR/USD data replace the unavailable original financial dataset.
 - Belenos-characteristic local simulations replace the Altair hardware experiment,
   with additional overlap controls. No QPU experiments are included.
-- Native count accumulation is optionally vectorized after environment-matched
-  verification.
 
 The [notebook](notebook.ipynb) displays the actual circuit, compares native samples
 with theory, applies recycling and runs 100 SPSA updates for three conditions
@@ -37,15 +34,15 @@ across all five seeds (0-4). Its six-mode/three-photon CPU example uses
 transmission 0.5 and 6,392,000 initial shots in total; allow a few minutes.
 This educational setting was selected after exploratory two-photon and
 three-photon comparisons, not as a paper benchmark. Every paired seed is shown.
-Historical Figure 2 results are loaded separately
-from curated files.
+Historical Figure 2 results are loaded separately from curated files.
 
 ## How to Run
 
 ### Installation
 
-Validated on Windows with Python 3.13.16, MerLin 0.4.2, Perceval 1.3.1 and
-PyTorch 2.12.1. From the repository root:
+Validated  with Python 3.13.16, MerLin 0.4.2, Perceval 1.3.1 and PyTorch 2.12.1. 
+
+From the repository root:
 
 ```bash
 python -m venv .venv
@@ -54,8 +51,8 @@ python -m pip install -r papers/error-qcbm/requirements.txt
 ```
 
 Open [notebook.ipynb](notebook.ipynb) in your notebook editor using this environment.
-The notebook and validated backend use CPU float64. GPU acceleration was not
-benchmarked. The pinned dependencies include the headless notebook tools.
+The notebook and validated backend use CPU float64. 
+The pinned dependencies include the headless notebook tools.
 
 ### Command line
 
@@ -146,8 +143,7 @@ python implementation.py --paper error-qcbm --config configs/prepare_gaussian.js
 The financial adaptation uses [European Central Bank (ECB) daily USD-per-EUR rates](https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod=2004-01-01&endPeriod=2023-12-31&format=csvdata)
 from 2004–2023. Log returns and the empirical histogram are calculated here.
 Financial figures carry this source and processing notice. Preparation and
-training metadata record the same source credit, [ECB terms URL](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html)
-and transformation notice.
+training metadata record the same source credit, [ECB terms URL](https://www.ecb.europa.eu/services/using-our-site/disclaimer/html/index.en.html) and transformation notice.
 Place the hash-matched frozen CSV under external `data/error-qcbm/fx/` before
 full training; the CSV is not bundled. Offline preparation and explicit download
 use `prepare_fx.json` and `prepare_fx_download.json`. Live acquisition timed out
@@ -156,7 +152,7 @@ during review; a changed response is not substituted automatically.
 The bundled [Belenos profile](configs/noise/belenos_20261017.json) contains only
 selected fields from a read-only Quandela Hub query: transmission T=.028 and
 overlap input I=.729, with brightness=1, g2=0 and threshold detection. It requires
-no Hub account or original response. I=.84 is an additional model-input ablation,
+no Hub account or original response. I=.84 is an additional model-input ablation from the paper,
 not a measured Belenos value. See [DATA_SOURCES.md](DATA_SOURCES.md) for sources,
 hashes, acquisition instructions, transformations and modeling limits.
 
@@ -178,15 +174,32 @@ These comparisons use the recorded finite-shot training objectives. They do
 not establish universal mitigation improvement or advantage over classical
 generative models.
 
-[Figure 2(a,b)](results/gaussian_fig2ab.png) ·
-[Figure 2(c,d)](results/financial_fig2cd.png) ·
-[Figure 2(e,f) simulation counterparts](results/belenos_fig2ef_original.png).
-See [figure captions and selection rules](results/README.md) for finite-shot
-metrics, histogram binning, original/retry accounting and seeds. Panel (e)
-shows three individual instances per condition; panel (f) keeps seed 6 across
-all six curves. Financial target shape differs from the paper because its
-original data were unavailable. These are archived full-run figures, separate
-from the notebook demonstration.
+![Figure 2 reproduction: Gaussian panels a–b, ECB financial panels c–d, and Belenos-characteristic simulation panels e–f](results/figure2_combined.png)
+
+**Figure 2.** The six reproduction panels are arranged in three rows and two
+columns: Gaussian (a,b), ECB financial adaptation (c,d), and Belenos-characteristic
+local simulation (e,f). The combined view uses the same recorded values and
+selection rules as the individual panel-pair exports.
+All curves show finite-shot training losses. Bands in (a,c) are population
+standard deviations across 20 original runs, not confidence intervals. Panel (b)
+shows five runs per condition selected by lowest final sampled KL, separately
+for lossless and recycling; these are not matched-best seeds. Panel (e) shows
+three instances with different initializations, unlike the paper's hardware
+repeats. Panel (f) uses seed 6 for every curve, selected by final sampled KL from
+19 complete original noisy-recycling runs; this selected example does not
+establish a population-level trend with indistinguishability.
+
+Panel (d) displays 5,123 stored samples from the seed-0 lossless model, selected
+independently of performance, with adjacent training bins grouped from 495 to 99.
+Financial target shape differs from the paper because its original data were
+unavailable. These are archived full-run figures, separate from the notebook
+demonstration. Full selection and retry policies remain in
+[`results/figure2_manifest.json`](results/figure2_manifest.json).
+
+The result bundle includes `runs.csv` (run identities and endpoints), `curves.csv`
+(recorded learning curves), `financial_histogram.csv` (display counts and bins),
+and `summary.json` (aggregate statistics). Separate retries supplement failed
+originals; they are not additional independent initializations.
 
 The compact public CSV/JSON bundle redraws the figures without original raw runs:
 
@@ -197,13 +210,12 @@ python implementation.py --paper error-qcbm --config configs/plot_results.json
 The reviewed fresh environment reproduced all PNG pixels, canonical SVG
 geometry/text and the saved summary. Other environments may alter rendering.
 
-## Extensions and Next Steps
+## Discussion and Next Steps
 
-Further controls could separate estimator bias and variance from optimizer
-behavior. Additional hardware noise models need
-verified calibration conventions before adding nonuniform loss, g2, dark counts
-or drift. Those extensions and actual QPU measurements are outside this
-computational reproduction.
+- In the Gaussian experiment with relatively low photon loss, post-selection achieved a lower KL divergence between the trained circuit’s exact output distribution and the target distribution than recycling. In contrast, recycling achieved a lower KL divergence in the high-loss experiment, suggesting its potential usefulness under substantial photon loss. However, the experiments also differed in shot budget and photon indistinguishability, so the difference cannot be attributed solely to the loss rate. We additionally conducted a small-scale training test using MMD loss, but it did not cover the same low- and high-loss settings. Further matched experiments are therefore needed to establish whether this trend is independent of the choice of loss function.
+- Photon indistinguishability alone may not be a reliable predictor of QCBM performance. Its effect should be assessed jointly with the target distribution, optimization procedure, and sampling budget.
+- Alternative probabilistic models may offer additional approaches to recovering output distributions from photon-loss data. As a preliminary exploration, we can use an optimization algorithm to estimate the underlying distribution under a specified photon-loss model. Further investigation is needed to assess its reconstruction accuracy, computational cost, and scalability relative to recycling.
+
 
 ## Reproducibility Notes
 
@@ -222,7 +234,7 @@ computational reproduction.
 - Ordinary configs use stock native accumulation. The optimized adapter changes
   counts only and requires full source/environment-matched evidence; a small
   sampler smoke is not production qualification. See [sampling notes](lib/SAMPLING.md).
-- Historical Linux CPU training used Torch 2.6.0, float64 and one thread.
+- Historical CPU training used Torch 2.6.0, float64 and one thread.
   Noisy 50M calls took about 18–20 seconds with the adapter in those measurements.
 - The Belenos model omits nonzero g2, dark counts, mode-dependent loss, phase
   errors and drift. Its two global parameters do not describe a complete device.
@@ -277,6 +289,6 @@ and transformations are documented in [DATA_SOURCES.md](DATA_SOURCES.md).
   title = {Daily euro foreign exchange reference rate: {USD} per {EUR}},
   howpublished = {ECB Data Portal, EXR.D.USD.EUR.SP00.A},
   url = {https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?startPeriod=2004-01-01&endPeriod=2023-12-31&format=csvdata},
-  note = {Reproduction uses 2004--2023 rates; log returns and empirical histogram calculated by reproduction authors. Frozen response SHA256: 2d45d8e704309af8ec25f53bdaab38f17b7d731022662b5708cbeedebca89794.}
+  note = {Reproduction uses 2004--2023 rates; log returns and empirical histogram calculated by reproduction authors.}
 }
 ```
